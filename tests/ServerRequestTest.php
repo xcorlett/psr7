@@ -15,7 +15,7 @@ class ServerRequestTest extends \PHPUnit_Framework_TestCase
     protected $serverRequest;
 
     public function setUp() {
-        $this->serverRequest = new ServerRequest('GET', new Psr7\Uri());
+        $this->serverRequest = new ServerRequest($_SERVER, 'GET', new Psr7\Uri());
     }
 
     public function testNewInstanceWhenNewCookieParams()

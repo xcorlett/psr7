@@ -127,6 +127,7 @@ function server_request_from_global()
     }
 
     $serverRequest = new ServerRequest(
+        $_SERVER,
         $method,
         uri_from_global(),
         $headers,

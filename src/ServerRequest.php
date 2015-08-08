@@ -24,6 +24,7 @@ class ServerRequest extends Request implements ServerRequestInterface {
     private $serverParams = [];
 
     public function __construct(
+        $serverParams = [],
         $method,
         $uri,
         array $headers = [],
@@ -31,6 +32,8 @@ class ServerRequest extends Request implements ServerRequestInterface {
         $protocolVersion = '1.1'
     ) {
         parent::__construct($method, $uri, $headers, $body, $protocolVersion);
+
+        $this->serverParams = $serverParams;
     }
 
     public function getServerParams()
@@ -64,12 +67,12 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function getUploadedFiles()
     {
-        // TODO: Implement getUploadedFiles() method.
+        throw new \Exception('Not implemented');
     }
 
     public function withUploadedFiles(array $uploadedFiles)
     {
-        // TODO: Implement withUploadedFiles() method.
+        throw new \Exception('Not implemented');
     }
 
     public function getParsedBody()
