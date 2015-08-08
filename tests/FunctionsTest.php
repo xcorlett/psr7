@@ -587,7 +587,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
     {
         $_SERVER['SERVER_NAME'] = 'www.foo.com';
         $_SERVER['SERVER_PORT'] = 80;
-        $_SERVER['REQUEST_URI'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '/index.php?foo=bar';
         $_SERVER['QUERY_STRING'] = 'foo=bar';
 
         $_POST = ['foo' => 'bar'];
@@ -600,9 +600,9 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
      */
     public function testUriFromGlobal()
     {
+        /** @var Psr7\Uri $uri */
         $uri = Psr7\uri_from_global();
         $this->assertEquals('http://www.foo.com/index.php?foo=bar', $uri);
-
     }
 
     /**

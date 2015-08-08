@@ -158,6 +158,10 @@ function uri_from_global()
     $host = $_SERVER['SERVER_NAME'];
     $port = $_SERVER['SERVER_PORT'];
     $path = $_SERVER['REQUEST_URI'];
+    if (($pos = strpos($path, '?')) !== false) {
+        $path = substr($path, 0, $pos);
+    }
+
     $queryString = $_SERVER['QUERY_STRING'];
 
     $uri = $uri->withScheme($scheme)
