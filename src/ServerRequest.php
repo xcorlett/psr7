@@ -24,12 +24,12 @@ class ServerRequest extends Request implements ServerRequestInterface {
     private $serverParams = [];
 
     public function __construct(
-        $serverParams = [],
         $method,
         $uri,
         array $headers = [],
         $body = null,
-        $protocolVersion = '1.1'
+        $protocolVersion = '1.1',
+        $serverParams = []
     ) {
         parent::__construct($method, $uri, $headers, $body, $protocolVersion);
 
