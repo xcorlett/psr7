@@ -127,11 +127,11 @@ function server_request_from_global()
     }
 
     $serverRequest = new ServerRequest(
-        $_SERVER,
         $method,
         uri_from_global(),
         $headers,
-        stream_for(fopen('php://input', 'r+')));
+        stream_for(fopen('php://input', 'r+')),
+        $_SERVER);
 
     $serverRequest = $serverRequest
         ->withCookieParams($_COOKIE)
