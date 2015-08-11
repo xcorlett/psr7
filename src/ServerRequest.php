@@ -2,10 +2,7 @@
 
 namespace GuzzleHttp\Psr7;
 
-use Prophecy\Exception\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\StreamInterface;
-use Psr\Http\Message\UriInterface;
 
 class ServerRequest extends Request implements ServerRequestInterface {
 

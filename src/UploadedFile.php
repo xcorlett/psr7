@@ -1,7 +1,6 @@
 <?php
 namespace GuzzleHttp\Psr7;
 
-use DoctrineTest\InstantiatorTestAsset\SimpleTraitAsset;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
 use Symfony\Component\Yaml\Exception\RuntimeException;
@@ -106,7 +105,7 @@ class UploadedFile implements UploadedFileInterface
             }
             fclose($handle);
         } else {
-            if (move_uploaded_file($this->file, $targetPath) === false) {
+            if (move_uploaded_file($this->filePath, $targetPath) === false) {
                 throw new RuntimeException('Error during the move operation');
             }
         }
