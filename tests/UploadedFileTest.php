@@ -15,7 +15,7 @@ use GuzzleHttp\Psr7\UploadedFile;
 class UploadedFileTest extends \PHPUnit_Framework_TestCase
 {
     public function setUp() {
-        $tmpName = sys_get_temp_dir().'phpUxcOty';
+        $tmpName = sys_get_temp_dir().'/phpUxcOty';
         $_FILES = array(
             'avatar' => array(
                 'tmp_name' => $tmpName,
@@ -26,7 +26,7 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
             ),
         );
 
-        $tmpName = sys_get_temp_dir().'phpUxcOty';
+        $tmpName = sys_get_temp_dir().'/phpUxcOty';
         $handle = fopen($tmpName, 'w+');
         fwrite($handle, 'foobar');
         fclose($handle);
@@ -65,7 +65,7 @@ class UploadedFileTest extends \PHPUnit_Framework_TestCase
             $fileData['name'],
             $fileData['type']
         );
-        $tmpPath = sys_get_temp_dir().'phpUxcOtymove';
+        $tmpPath = sys_get_temp_dir().'/phpUxcOtymove';
         $uploadedFile->moveTo($tmpPath);
         $this->assertTrue(file_exists($tmpPath));
         $uploadedFile->getStream();

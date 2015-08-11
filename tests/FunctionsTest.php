@@ -647,8 +647,8 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($_COOKIE, $serverRequest->getCookieParams());
         $this->assertEquals($_GET, $serverRequest->getQueryParams());
         $this->assertEquals($_POST, $serverRequest->getParsedBody());
-        $this->assertInstanceOf(Psr7\UploadedFile::class, $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][0]);
-        $this->assertInstanceOf(Psr7\UploadedFile::class, $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][1]);
+        $this->assertInstanceOf('GuzzleHttp\Psr7\UploadedFile', $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][0]);
+        $this->assertInstanceOf('GuzzleHttp\Psr7\UploadedFile', $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][1]);
     }
 
 }
