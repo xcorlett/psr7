@@ -21,9 +21,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
     {
         $s1 = Psr7\stream_for('foobaz');
         $s1 = FnStream::decorate($s1, [
-            'read' => function () {
-                return '';
-            }
+            'read' => function () { return ''; }
         ]);
         $result = Psr7\copy_to_string($s1);
         $this->assertEquals('', $result);
@@ -34,46 +32,40 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $s1 = Psr7\stream_for('foobaz');
         $s2 = Psr7\stream_for('');
         Psr7\copy_to_stream($s1, $s2);
-        $this->assertEquals('foobaz', (string)$s2);
+        $this->assertEquals('foobaz', (string) $s2);
         $s2 = Psr7\stream_for('');
         $s1->seek(0);
         Psr7\copy_to_stream($s1, $s2, 3);
-        $this->assertEquals('foo', (string)$s2);
+        $this->assertEquals('foo', (string) $s2);
         Psr7\copy_to_stream($s1, $s2, 3);
-        $this->assertEquals('foobaz', (string)$s2);
+        $this->assertEquals('foobaz', (string) $s2);
     }
 
     public function testStopsCopyToStreamWhenWriteFails()
     {
         $s1 = Psr7\stream_for('foobaz');
         $s2 = Psr7\stream_for('');
-        $s2 = FnStream::decorate($s2, ['write' => function () {
-            return 0;
-        }]);
+        $s2 = FnStream::decorate($s2, ['write' => function () { return 0; }]);
         Psr7\copy_to_stream($s1, $s2);
-        $this->assertEquals('', (string)$s2);
+        $this->assertEquals('', (string) $s2);
     }
 
     public function testStopsCopyToSteamWhenWriteFailsWithMaxLen()
     {
         $s1 = Psr7\stream_for('foobaz');
         $s2 = Psr7\stream_for('');
-        $s2 = FnStream::decorate($s2, ['write' => function () {
-            return 0;
-        }]);
+        $s2 = FnStream::decorate($s2, ['write' => function () { return 0; }]);
         Psr7\copy_to_stream($s1, $s2, 10);
-        $this->assertEquals('', (string)$s2);
+        $this->assertEquals('', (string) $s2);
     }
 
     public function testStopsCopyToSteamWhenReadFailsWithMaxLen()
     {
         $s1 = Psr7\stream_for('foobaz');
-        $s1 = FnStream::decorate($s1, ['read' => function () {
-            return '';
-        }]);
+        $s1 = FnStream::decorate($s1, ['read' => function () { return ''; }]);
         $s2 = Psr7\stream_for('');
         Psr7\copy_to_stream($s1, $s2, 10);
-        $this->assertEquals('', (string)$s2);
+        $this->assertEquals('', (string) $s2);
     }
 
     public function testReadsLines()
@@ -253,8 +245,8 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo.com', $request->getHeaderLine('Host'));
         $this->assertEquals('Bar', $request->getHeaderLine('Foo'));
         $this->assertEquals('Bam, Qux', $request->getHeaderLine('Baz'));
-        $this->assertEquals('Test', (string)$request->getBody());
-        $this->assertEquals('http://foo.com/abc', (string)$request->getUri());
+        $this->assertEquals('Test', (string) $request->getBody());
+        $this->assertEquals('http://foo.com/abc', (string) $request->getUri());
     }
 
     public function testParsesRequestMessagesWithHttpsScheme()
@@ -265,8 +257,8 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/abc?baz=bar', $request->getRequestTarget());
         $this->assertEquals('1.1', $request->getProtocolVersion());
         $this->assertEquals('foo.com:443', $request->getHeaderLine('Host'));
-        $this->assertEquals('', (string)$request->getBody());
-        $this->assertEquals('https://foo.com/abc?baz=bar', (string)$request->getUri());
+        $this->assertEquals('', (string) $request->getBody());
+        $this->assertEquals('https://foo.com/abc?baz=bar', (string) $request->getUri());
     }
 
     public function testParsesRequestMessagesWithUriWhenHostIsNotFirst()
@@ -275,7 +267,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $request = Psr7\parse_request($req);
         $this->assertEquals('PUT', $request->getMethod());
         $this->assertEquals('/', $request->getRequestTarget());
-        $this->assertEquals('http://foo.com/', (string)$request->getUri());
+        $this->assertEquals('http://foo.com/', (string) $request->getUri());
     }
 
     /**
@@ -295,7 +287,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('1.0', $response->getProtocolVersion());
         $this->assertEquals('Bar', $response->getHeaderLine('Foo'));
         $this->assertEquals('Bam, Qux', $response->getHeaderLine('Baz'));
-        $this->assertEquals('Test', (string)$response->getBody());
+        $this->assertEquals('Test', (string) $response->getBody());
     }
 
     /**
@@ -370,7 +362,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $r = fopen(__FILE__, 'r');
         $s = Psr7\stream_for($r);
         $this->assertInstanceOf('GuzzleHttp\Psr7\Stream', $s);
-        $this->assertSame(file_get_contents(__FILE__), (string)$s);
+        $this->assertSame(file_get_contents(__FILE__), (string) $s);
     }
 
     public function testFactoryCreatesFromObjectWithToString()
@@ -378,7 +370,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $r = new HasToString();
         $s = Psr7\stream_for($r);
         $this->assertInstanceOf('GuzzleHttp\Psr7\Stream', $s);
-        $this->assertEquals('foo', (string)$s);
+        $this->assertEquals('foo', (string) $s);
     }
 
     public function testCreatePassesThrough()
@@ -527,9 +519,7 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $body = Psr7\stream_for('abc');
         $body->read(1);
         $body = FnStream::decorate($body, [
-            'rewind' => function () {
-                throw new \RuntimeException('a');
-            }
+            'rewind' => function () { throw new \RuntimeException('a'); }
         ]);
         $res = new Psr7\Response(200, [], $body);
         Psr7\rewind_body($res);
@@ -541,8 +531,8 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $r2 = Psr7\modify_request($r1, [
             'uri' => new Psr7\Uri('http://www.foo.com')
         ]);
-        $this->assertEquals('http://www.foo.com', (string)$r2->getUri());
-        $this->assertEquals('www.foo.com', (string)$r2->getHeaderLine('host'));
+        $this->assertEquals('http://www.foo.com', (string) $r2->getUri());
+        $this->assertEquals('www.foo.com', (string) $r2->getHeaderLine('host'));
     }
 
     public function testCanModifyRequestWithCaseInsensitiveHeader()
@@ -583,13 +573,13 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('foo=bar', $r2->getUri()->getQuery());
     }
 
+
     public function populateGlobalVariable()
     {
         $_SERVER['SERVER_NAME'] = 'www.foo.com';
         $_SERVER['SERVER_PORT'] = 80;
         $_SERVER['REQUEST_URI'] = '/index.php?foo=bar';
         $_SERVER['QUERY_STRING'] = 'foo=bar';
-
         $_POST = ['foo' => 'bar'];
         $_GET = ['foo' => 'bar'];
         $_COOKIE = ['foo' => 'bar'];
@@ -621,7 +611,6 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
                 ),
             ),
         );
-
     }
 
     /**
@@ -643,12 +632,10 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
          * @var Psr7\ServerRequest $serverRequest
          */
         $serverRequest = Psr7\server_request_from_global();
-
         $this->assertEquals($_COOKIE, $serverRequest->getCookieParams());
         $this->assertEquals($_GET, $serverRequest->getQueryParams());
         $this->assertEquals($_POST, $serverRequest->getParsedBody());
         $this->assertInstanceOf('GuzzleHttp\Psr7\UploadedFile', $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][0]);
         $this->assertInstanceOf('GuzzleHttp\Psr7\UploadedFile', $serverRequest->getUploadedFiles()['my-form']['details']['avatars'][1]);
     }
-
 }
