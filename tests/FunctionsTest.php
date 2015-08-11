@@ -375,10 +375,10 @@ class FunctionsTest extends \PHPUnit_Framework_TestCase
 
     public function testFactoryCreatesFromObjectWithToString()
     {
-   /*     $r = new HasToString();
+        $r = new HasToString();
         $s = Psr7\stream_for($r);
         $this->assertInstanceOf('GuzzleHttp\Psr7\Stream', $s);
-        $this->assertEquals('foo', (string)$s);*/
+        $this->assertEquals('foo', (string)$s);
     }
 
     public function testCreatePassesThrough()
