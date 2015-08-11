@@ -2,6 +2,7 @@
 
 namespace GuzzleHttp\Psr7;
 
+use Prophecy\Exception\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
@@ -23,13 +24,16 @@ class ServerRequest extends Request implements ServerRequestInterface {
     /** @var  array */
     private $serverParams = [];
 
+    /** @var array  */
+    private $uploadedFiles = [];
+
     public function __construct(
         $method,
         $uri,
         array $headers = [],
         $body = null,
         $protocolVersion = '1.1',
-        $serverParams = []
+        array $serverParams = []
     ) {
         parent::__construct($method, $uri, $headers, $body, $protocolVersion);
 
@@ -48,6 +52,10 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function withCookieParams(array $cookies)
     {
+        if ($this->cookieParams === $cookies) {
+            return $this;
+        }
+
         $new = clone $this;
         $new->cookieParams = $cookies;
         return $new;
@@ -60,6 +68,10 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function withQueryParams(array $query)
     {
+        if ($this->queryParams === $query) {
+            return $this;
+        }
+
         $new = clone $this;
         $new->queryParams = $query;
         return $new;
@@ -67,12 +79,14 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function getUploadedFiles()
     {
-        throw new \Exception('Not implemented');
+        return $this->uploadedFiles;
     }
 
     public function withUploadedFiles(array $uploadedFiles)
     {
-        throw new \Exception('Not implemented');
+        $new = clone $this;
+        $new->uploadedFiles = $uploadedFiles;
+        return $new;
     }
 
     public function getParsedBody()
@@ -82,6 +96,14 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function withParsedBody($data)
     {
+        if (!is_null($data) && !is_array($data) && !is_object($data)) {
+            throw new \InvalidArgumentException('This method ONLY accepts arrays or objects or a null value');
+        }
+
+        if ($this->parsedBody === $data) {
+            return $this;
+        }
+
         $new = clone $this;
         $new->parsedBody = $data;
         return $new;
@@ -110,12 +132,11 @@ class ServerRequest extends Request implements ServerRequestInterface {
 
     public function withoutAttribute($name)
     {
-        $new = clone $this;
-
         if (!isset($this->attributes[$name])) {
-            return $new;
+            return $this;
         }
 
+        $new = clone $this;
         unset($new->attributes[$name]);
         return $new;
     }

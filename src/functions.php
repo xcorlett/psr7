@@ -136,7 +136,8 @@ function server_request_from_global()
     $serverRequest = $serverRequest
         ->withCookieParams($_COOKIE)
         ->withQueryParams($_GET)
-        ->withParsedBody($_POST);
+        ->withParsedBody($_POST)
+        ->withUploadedFiles(uploaded_files_from_global());
 
     return $serverRequest;
 }
@@ -172,6 +173,45 @@ function uri_from_global()
 
     return $uri;
 }
+
+function uploaded_files_from_global($files = null) {
+    if ($files == null) {
+        $files = $_FILES;
+    }
+
+    foreach ($files as $fileKey => $fileData) {
+        if (is_array($fileData) && isset($fileData['tmp_name'])) {
+            if (is_array($fileData['tmp_name'])) {
+                return [$fileKey => uploaded_multi_files_from_global($fileData)];
+            } else {
+                return [$fileKey => new UploadedFile(
+                    $fileData['tmp_name'],
+                    $fileData['error'],
+                    $fileData['size'],
+                    $fileData['name'],
+                    $fileData['type']
+                )];
+            }
+        } else if (is_array($files)) {
+            return [$fileKey => uploaded_files_from_global($fileData)];
+        }
+    }
+}
+
+function uploaded_multi_files_from_global($files) {
+    $uploadedFiles = [];
+    foreach (array_keys($files['tmp_name']) as $fileKey) {
+        $uploadedFiles[] = new UploadedFile(
+            $files['tmp_name'][$fileKey],
+            $files['error'][$fileKey],
+            $files['size'][$fileKey],
+            $files['name'][$fileKey],
+            $files['type'][$fileKey]
+        );
+    }
+    return $uploadedFiles;
+}
+
 
 /**
  * Parse an array of header values containing ";" separated data into an
