@@ -3,31 +3,9 @@ namespace GuzzleHttp\Psr7;
 
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UploadedFileInterface;
-use Symfony\Component\Yaml\Exception\RuntimeException;
 
 class UploadedFile implements UploadedFileInterface
 {
-    /** @var string */
-    private $clientFilename;
-
-    /** @var string|null */
-    private $clientMediaType;
-
-    /** @var int */
-    private $error;
-
-    /** @var null|string */
-    private $filePath;
-
-    /** @var bool */
-    private $moved = false;
-
-    /** @var null|int */
-    private $size;
-
-    /** @var StreamInterface */
-    private $stream;
-
     private static $uploadErrorCode = [
         UPLOAD_ERR_OK,
         UPLOAD_ERR_INI_SIZE,
@@ -39,7 +17,29 @@ class UploadedFile implements UploadedFileInterface
         UPLOAD_ERR_EXTENSION
     ];
 
-    public function __construct($fileOrStream, $error, $size = null, $clientFilename = null, $clientMediaType = null) {
+    /** @var string */
+    private $clientFilename;
+
+    /** @var string|null */
+    private $clientMediaType;
+    /** @var int */
+
+    private $error;
+    /** @var null|string */
+
+    private $filePath;
+
+    /** @var bool */
+    private $moved = false;
+
+    /** @var null|int */
+    private $size;
+
+    /** @var StreamInterface */
+    private $stream;
+
+    public function __construct($fileOrStream, $error, $size = null, $clientFilename = null, $clientMediaType = null)
+    {
 
         if (is_string($fileOrStream)) {
             $this->filePath = $fileOrStream;
@@ -73,20 +73,6 @@ class UploadedFile implements UploadedFileInterface
         $this->clientMediaType = $clientMediaType;
     }
 
-    public function getStream()
-    {
-        if ($this->moved == true) {
-            throw new \RuntimeException('Cannot get stream; file moved');
-        }
-
-        if ($this->stream == null) {
-            $handle = try_fopen($this->filePath, 'r');
-            $this->stream = new Stream($handle);
-        }
-
-        return $this->stream;
-    }
-
     public function moveTo($targetPath)
     {
         if (!is_string($targetPath) || empty($targetPath)) {
@@ -106,11 +92,25 @@ class UploadedFile implements UploadedFileInterface
             fclose($handle);
         } else {
             if (move_uploaded_file($this->filePath, $targetPath) === false) {
-                throw new RuntimeException('Error during the move operation');
+                throw new \RuntimeException('Error during the move operation');
             }
         }
 
         $this->moved = true;
+    }
+
+    public function getStream()
+    {
+        if ($this->moved == true) {
+            throw new \RuntimeException('Cannot get stream; file moved');
+        }
+
+        if ($this->stream == null) {
+            $handle = try_fopen($this->filePath, 'r');
+            $this->stream = new Stream($handle);
+        }
+
+        return $this->stream;
     }
 
     public function getSize()
@@ -140,5 +140,4 @@ class UploadedFile implements UploadedFileInterface
     {
         return $this->clientMediaType;
     }
-
 }

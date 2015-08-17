@@ -4,8 +4,8 @@ namespace GuzzleHttp\Psr7;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-class ServerRequest extends Request implements ServerRequestInterface {
-
+class ServerRequest extends Request implements ServerRequestInterface
+{
     /** @var  array */
     private $attributes;
 
@@ -21,7 +21,7 @@ class ServerRequest extends Request implements ServerRequestInterface {
     /** @var  array */
     private $serverParams = [];
 
-    /** @var array  */
+    /** @var array */
     private $uploadedFiles = [];
 
     public function __construct(

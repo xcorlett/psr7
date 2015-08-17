@@ -2,13 +2,11 @@
 
 namespace GuzzleHttp\Tests\Psr7;
 
-
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7;
 
 class ServerRequestTest extends \PHPUnit_Framework_TestCase
 {
-
     /**
      * @var ServerRequest
      */
@@ -34,7 +32,6 @@ class ServerRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($cookieParams, $serverRequest->getCookieParams());
     }
 
-
     public function testSameInstanceWhenSameQueryParams()
     {
         $queryParams = ['testK' => 'testV'];
@@ -50,7 +47,6 @@ class ServerRequestTest extends \PHPUnit_Framework_TestCase
         $this->assertNotSame($this->serverRequest, $serverRequest);
         $this->assertEquals($queryParams, $serverRequest->getQueryParams());
     }
-
 
     public function testSameInstanceWhenSameParsedBody()
     {

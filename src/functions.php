@@ -152,7 +152,6 @@ function server_request_from_global()
  */
 function uri_from_global()
 {
-    $uri = new Uri();
     $scheme = 'http';
     if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
         $scheme = 'https';
@@ -163,67 +162,67 @@ function uri_from_global()
     if (($pos = strpos($path, '?')) !== false) {
         $path = substr($path, 0, $pos);
     }
-    $queryString = $_SERVER['QUERY_STRING'];
-    $uri = $uri->withScheme($scheme)
-        ->withHost($host)
-        ->withPort($port)
-        ->withPath($path)
-        ->withQuery($queryString);
+    $queryString = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+
+    $completeUri = $scheme . '://' . $host . ':' . $port . $path . $queryString;
+    $uri = new Uri($completeUri);
+
     return $uri;
 }
 
 /**
- * Return an UploadedFile instance array with data contained in superglobal $_FILES.
+ * Return an UploadedFile instance array of $_FILES superglobal.
+ *
+ * @return array
+ */
+function uploaded_files_from_global()
+{
+    return uploaded_files_from_array($_FILES);
+}
+
+/**
+ * Return an UploadedFile instance array.
  *
  * @param null $files A array which respect $_FILES structure.
  * @return array Return
  */
-function uploaded_files_from_global($files = null)
+function uploaded_files_from_array($files = null)
 {
-    if ($files == null) {
-        $files = $_FILES;
-    }
-
+    $uploadedFiles = [];
     foreach ($files as $fileKey => $fileData) {
-        if (is_array($fileData) && isset($fileData['tmp_name'])) {
-            if (is_array($fileData['tmp_name'])) {
-                return [$fileKey => uploaded_multi_files_from_global($fileData)];
-            } else {
-                return [$fileKey => new UploadedFile(
-                    $fileData['tmp_name'],
-                    $fileData['error'],
-                    $fileData['size'],
-                    $fileData['name'],
-                    $fileData['type']
-                )];
-            }
-        } else if (is_array($files)) {
-            return [$fileKey => uploaded_files_from_global($fileData)];
+        if (!is_array($fileData)) {
+            throw new \InvalidArgumentException('Array must respect $_FILES structure');
+        }
+
+        if (is_array($fileData) && !isset($fileData['tmp_name'])) {
+            $uploadedFiles[$fileKey] = uploaded_files_from_array($fileData);
+            continue;
+        }
+
+        //Simple and single named form element
+        if (!is_array($fileData['tmp_name'])) {
+            $uploadedFiles[$fileKey] = new UploadedFile(
+                $fileData['tmp_name'],
+                $fileData['error'],
+                $fileData['size'],
+                $fileData['name'],
+                $fileData['type']
+            );
+            continue;
+        }
+
+        //In the case of an input using array notation for the name
+        foreach (array_keys($fileData['tmp_name']) as $fileNumber) {
+            $uploadedFiles[$fileKey][] = new UploadedFile(
+                $fileData['tmp_name'][$fileNumber],
+                $fileData['error'][$fileNumber],
+                $fileData['size'][$fileNumber],
+                $fileData['name'][$fileNumber],
+                $fileData['type'][$fileNumber]
+            );
         }
     }
 
-    return [];
-}
-
-/**
- * Enable the multi-file upload with one request.
- * The $_FILES superglobal structure if one file is send or more.
- *
- * @param array $files The last dimension of $_FILES superglobal, if several files are sent
- * @return array Return a UploadedFileInstance array
- */
-function uploaded_multi_files_from_global(array $files)
-{
-    $uploadedFiles = [];
-    foreach (array_keys($files['tmp_name']) as $fileKey) {
-        $uploadedFiles[] = new UploadedFile(
-            $files['tmp_name'][$fileKey],
-            $files['error'][$fileKey],
-            $files['size'][$fileKey],
-            $files['name'][$fileKey],
-            $files['type'][$fileKey]
-        );
-    }
     return $uploadedFiles;
 }
 
