@@ -113,6 +113,119 @@ function stream_for($resource = '', array $options = [])
     throw new \InvalidArgumentException('Invalid resource type: ' . gettype($resource));
 }
 
+
+/**
+ * Return a ServerRequestInterface populated with superglobals :
+ * $_GET
+ * $_POST
+ * $_COOKIE
+ * $_FILES
+ * $_SERVER
+ *
+ * @return ServerRequest
+ */
+function server_request_from_global()
+{
+    $method = !isset($_SERVER['REQUEST_METHOD']) ? 'GET' : $_SERVER['REQUEST_METHOD'];
+    $headers = [];
+    if (function_exists('apache_request_headers')) {
+        $headers = apache_request_headers();
+    }
+    $serverRequest = new ServerRequest(
+        $method,
+        uri_from_global(),
+        $headers,
+        stream_for(fopen('php://input', 'r+')),
+        $_SERVER);
+    $serverRequest = $serverRequest
+        ->withCookieParams($_COOKIE)
+        ->withQueryParams($_GET)
+        ->withParsedBody($_POST)
+        ->withUploadedFiles(uploaded_files_from_global());
+    return $serverRequest;
+}
+
+/**
+ * Return a UriInterface populated with data contained in superglobal $_SERVER
+ *
+ * @return Uri
+ */
+function uri_from_global()
+{
+    $scheme = 'http';
+    if (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] == 'on') {
+        $scheme = 'https';
+    }
+    $host = $_SERVER['SERVER_NAME'];
+    $port = $_SERVER['SERVER_PORT'];
+    $path = $_SERVER['REQUEST_URI'];
+    if (($pos = strpos($path, '?')) !== false) {
+        $path = substr($path, 0, $pos);
+    }
+    $queryString = !empty($_SERVER['QUERY_STRING']) ? '?' . $_SERVER['QUERY_STRING'] : '';
+
+    $completeUri = $scheme . '://' . $host . ':' . $port . $path . $queryString;
+    $uri = new Uri($completeUri);
+
+    return $uri;
+}
+
+/**
+ * Return an UploadedFile instance array of $_FILES superglobal.
+ *
+ * @return array
+ */
+function uploaded_files_from_global()
+{
+    return uploaded_files_from_array($_FILES);
+}
+
+/**
+ * Return an UploadedFile instance array.
+ *
+ * @param null $files A array which respect $_FILES structure.
+ * @return array Return
+ */
+function uploaded_files_from_array($files = null)
+{
+    $uploadedFiles = [];
+    foreach ($files as $fileKey => $fileData) {
+        if (!is_array($fileData)) {
+            throw new \InvalidArgumentException('Array must respect $_FILES structure');
+        }
+
+        if (is_array($fileData) && !isset($fileData['tmp_name'])) {
+            $uploadedFiles[$fileKey] = uploaded_files_from_array($fileData);
+            continue;
+        }
+
+        //Simple and single named form element
+        if (!is_array($fileData['tmp_name'])) {
+            $uploadedFiles[$fileKey] = new UploadedFile(
+                $fileData['tmp_name'],
+                $fileData['error'],
+                $fileData['size'],
+                $fileData['name'],
+                $fileData['type']
+            );
+            continue;
+        }
+
+        //In the case of an input using array notation for the name
+        foreach (array_keys($fileData['tmp_name']) as $fileNumber) {
+            $uploadedFiles[$fileKey][] = new UploadedFile(
+                $fileData['tmp_name'][$fileNumber],
+                $fileData['error'][$fileNumber],
+                $fileData['size'][$fileNumber],
+                $fileData['name'][$fileNumber],
+                $fileData['type'][$fileNumber]
+            );
+        }
+    }
+
+    return $uploadedFiles;
+}
+
 /**
  * Parse an array of header values containing ";" separated data into an
  * array of associative arrays representing the header key value pair
